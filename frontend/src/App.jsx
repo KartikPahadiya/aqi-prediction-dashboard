@@ -321,8 +321,9 @@ function App() {
         </div>
       </div>
 
-      <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
-        <div style={{ width: "40%", padding: "10px", height: "100%" }}>
+      <div style={{ display: "flex", flex: 1, overflow: "hidden", background: "#0a0a0a" }}>
+        {/* LEFT = MAP */}
+        <div style={{ width: "40%", height: "100%", padding: "10px" }}>
           <MapView
             data={filtered}
             selectedPollutant={selectedPollutant}
@@ -333,308 +334,148 @@ function App() {
           />
         </div>
 
-        <div style={{ flex: 1, display: "flex" }}>
-          <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                height: "100%",
-                overflowY: "auto",
-                gap: "10px",
-                padding: "0 10px",
-              }}
-            >
-              <div style={{ flex: "0 0 auto" }}>
-                <h3>Snapshot Chart</h3>
-                <p style={{ color: "#888", fontSize: "12px", margin: "4px 0 8px 0" }}>
-                  Pollutant readings for the selected station on the selected date
-                </p>
-                <div className="chart-container">
-                  {selected ? <ChartView data={selected} /> : <div style={{color: "#888", display: "flex", alignItems: "center", justifyContent: "center", height: "100%"}}>Select a station</div>}
-                </div>
-              </div>
-
-              <div style={{ flex: "0 0 auto" }}>
-                <h3>Trend ({selectedPollutant})</h3>
-                <p style={{ color: "#888", fontSize: "12px", margin: "4px 0 8px 0" }}>
-                  Historical {selectedPollutant} trend for the selected station over all dates
-                </p>
-                <div className="chart-container">
-                  {selected ? (
-                    <TrendChart
-                      fullData={data}
-                      selected={selected}
-                      pollutant={selectedPollutant}
-                    />
-                  ) : <div style={{color: "#888", display: "flex", alignItems: "center", justifyContent: "center", height: "100%"}}>Select a station</div>}
-                </div>
-              </div>
-
-              <div
-                style={{
-                  padding: "10px",
-                  background: "#0f3d2e",
-                  borderRadius: "10px",
-                  flex: "0 0 auto",
-                }}
-              >
-                <h3 style={{ color: "#00ffcc", textAlign: "center" }}>
-                  Pollutant Summary
-                </h3>
-
-                {sortedSelected.length > 0 && (
-                  <table
-                    style={{
-                      width: "100%",
-                      borderCollapse: "collapse",
-                      textAlign: "center",
-                      color: "white",
-                    }}
-                  >
-                    <thead>
-                      <tr style={{ background: "#00ffcc", color: "black" }}>
-                        <th>Pollutant</th>
-                        <th>Min</th>
-                        <th>Max</th>
-                        <th>Avg</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sortedSelected.map((item, i) => (
-                        <tr key={i} style={{ borderBottom: "1px solid #333" }}>
-                          <td style={{ padding: "8px", color: "#00ffcc" }}>
-                            {item.pollutant_id}
-                          </td>
-                          <td>{formatValue(item.min_value)}</td>
-                          <td>{formatValue(item.max_value)}</td>
-                          <td>{formatValue(item.avg_value)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
+        {/* MIDDLE = CHARTS */}
+        <div style={{ width: "35%", height: "100%", display: "flex", flexDirection: "column", gap: "8px", padding: "10px 0" }}>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+            <h3 style={{ margin: "0 0 6px 0", fontSize: "13px" }}>Snapshot Chart</h3>
+            <p style={{ color: "#888", fontSize: "11px", margin: "0 0 6px 0" }}>Pollutant readings for the selected station on the selected date</p>
+            <div style={{ flex: 1, minHeight: 0, background: "#111", borderRadius: "8px" }}>
+              {selected ? <ChartView data={selected} /> : <div style={{color: "#666", display: "flex", alignItems: "center", justifyContent: "center", height: "100%"}}>Select a station</div>}
             </div>
           </div>
 
-          <div
-            style={{
-              width: "35%",
-              padding: "15px",
-              background: "#181818",
-              overflowY: "auto",
-              borderLeft: "2px solid #333",
-            }}
-          >
-            <h2 style={{ textAlign: "center" }}>Selected Info</h2>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+            <h3 style={{ margin: "0 0 6px 0", fontSize: "13px" }}>Trend ({selectedPollutant})</h3>
+            <p style={{ color: "#888", fontSize: "11px", margin: "0 0 6px 0" }}>Historical {selectedPollutant} trend for the selected station over all dates</p>
+            <div style={{ flex: 1, minHeight: 0, background: "#111", borderRadius: "8px" }}>
+              {selected ? (
+                <TrendChart
+                  fullData={data}
+                  selected={selected}
+                  pollutant={selectedPollutant}
+                />
+              ) : <div style={{color: "#666", display: "flex", alignItems: "center", justifyContent: "center", height: "100%"}}>Select a station</div>}
+            </div>
+          </div>
 
-            {selected && selected.length > 0 ? (
-              <>
-                <p>
-                  <b>Station:</b> {selected?.[0]?.station}
-                </p>
-                <p>
-                  <b>City:</b> {selected[0].city}
-                </p>
-                <p>
-                  <b>State:</b> {selected[0].state}
-                </p>
-                <p>
-                  <b>Date:</b> {selected[0].date}
-                </p>
-
-                <hr />
-
-                <div
-                  style={{
-                    background: "#0f3d2e",
-                    padding: "12px",
-                    borderRadius: "10px",
-                    marginBottom: "15px",
-                    boxShadow: "0 0 8px rgba(0,255,150,0.3)",
-                  }}
-                >
-                  <h3 style={{ color: "#00ffcc" }}>Weather</h3>
-                  <p>Temperature: {formatValue(selected[0].temperature)} °C</p>
-                  <p>Humidity: {formatValue(selected[0].humidity)} %</p>
-                  <p>Wind Speed: {formatValue(selected[0].wind_speed)} m/s</p>
-                  <p>Wind Direction: {formatValue(selected[0].wind_direction)} °</p>
-                </div>
-
-                {predError && (
-                  <div
-                    style={{
-                      background: "#4a1a1a",
-                      padding: "12px",
-                      borderRadius: "10px",
-                      marginBottom: "15px",
-                      color: "#ff6b6b",
-                    }}
-                  >
-                    <p>
-                      <b>Prediction Error:</b> {predError}
-                    </p>
-                    <p style={{ fontSize: "12px" }}>
-                      Make sure the backend is running on {API_BASE}
-                    </p>
-                  </div>
-                )}
-
-                {predLoading && !predError && (
-                  <div
-                    style={{
-                      padding: "20px",
-                      textAlign: "center",
-                      color: "#aaa",
-                    }}
-                  >
-                    Fetching forecast...
-                  </div>
-                )}
-
-                {prediction && !predError && !predLoading && (
-                  <div
-                    style={{
-                      background: "#1a2f4b",
-                      padding: "12px",
-                      borderRadius: "10px",
-                      marginBottom: "15px",
-                      boxShadow: "0 0 10px rgba(0,150,255,0.3)",
-                    }}
-                  >
-                    <h3
-                      style={{
-                        color: "#00ccff",
-                        textAlign: "center",
-                      }}
-                    >
-                      {prediction?.pollutant || "PM2.5"} Forecast
-                    </h3>
-                    <p
-                      style={{
-                        textAlign: "center",
-                        color: "#aaa",
-                        fontSize: "12px",
-                      }}
-                    >
-                      Based on {prediction?.date || "latest data"}
-                    </p>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-around",
-                        marginTop: "10px",
-                      }}
-                    >
-                      {["day1", "day2", "day3"].map((day, i) => {
-                        const val = prediction?.predictions?.[day];
-                        const health = prediction?.health_status?.[day];
-                        return (
-                          <div key={day} style={{ textAlign: "center" }}>
-                            <p>+{i + 1} Day</p>
-                            <h4
-                              style={{
-                                color: health
-                                  ? getHealthColor(health.level)
-                                  : "white",
-                                margin: "4px 0",
-                              }}
-                            >
-                              {val ?? "-"}
-                            </h4>
-                            {health && (
-                              <p
-                                style={{
-                                  fontSize: "10px",
-                                  color: getHealthColor(health.level),
-                                  fontWeight: "bold",
-                                }}
-                              >
-                                {health.level}
-                              </p>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {prediction?.today_value !== undefined && (
-                      <p
-                        style={{
-                          textAlign: "center",
-                          marginTop: "10px",
-                          color: "#aaa",
-                        }}
-                      >
-                        Today: <b>{prediction.today_value}</b>{" "}
-                        {prediction?.pollutant === "CO" ? "mg/m³" : "µg/m³"}
-                      </p>
-                    )}
-
-                    {prediction?.delta_predictions && (
-                      <div
-                        style={{
-                          marginTop: "10px",
-                          paddingTop: "10px",
-                          borderTop: "1px solid #333",
-                        }}
-                      >
-                        <p
-                          style={{
-                            color: "#aaa",
-                            fontSize: "12px",
-                            textAlign: "center",
-                          }}
-                        >
-                          Predicted Change
-                        </p>
-                        <div style={{ display: "flex", justifyContent: "space-around" }}>
-                          {["day1", "day2", "day3"].map((day, i) => {
-                            const delta = prediction?.delta_predictions?.[day];
-                            if (delta === undefined) return null;
-                            const color =
-                              delta > 0 ? "#ff6b6b" : delta < 0 ? "#51cf66" : "#aaa";
-                            const sign = delta > 0 ? "+" : "";
-                            return (
-                              <p key={day} style={{ color, fontSize: "12px" }}>
-                                +{i + 1}d: {sign}
-                                {delta}
-                              </p>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-
-                    {prediction?.health_status?.day1?.advice && (
-                      <div
-                        style={{
-                          background: "rgba(0,0,0,0.2)",
-                          borderRadius: "8px",
-                          padding: "10px",
-                          marginTop: "10px",
-                        }}
-                      >
-                        <h4 style={{ fontSize: "12px", color: "#00ffcc", margin: "0 0 6px 0" }}>
-                          Health Advice
-                        </h4>
-                        <p style={{ fontSize: "12px", color: "#aaa", lineHeight: "1.5", margin: 0 }}>
-                          {prediction.health_status.day1.advice}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </>
+          <div style={{ flex: "0 0 auto", padding: "10px", background: "#0f3d2e", borderRadius: "10px" }}>
+            <h3 style={{ color: "#00ffcc", textAlign: "center", margin: "0 0 8px 0", fontSize: "13px" }}>Pollutant Summary</h3>
+            {sortedSelected.length > 0 ? (
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  textAlign: "center",
+                  color: "white",
+                  fontSize: "12px",
+                }}
+              >
+                <thead>
+                  <tr style={{ background: "#00ffcc", color: "black" }}>
+                    <th>Pollutant</th>
+                    <th>Min</th>
+                    <th>Max</th>
+                    <th>Avg</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedSelected.map((item, i) => (
+                    <tr key={i} style={{ borderBottom: "1px solid #333" }}>
+                      <td style={{ padding: "6px", color: "#00ffcc" }}>{item.pollutant_id}</td>
+                      <td>{formatValue(item.min_value)}</td>
+                      <td>{formatValue(item.max_value)}</td>
+                      <td>{formatValue(item.avg_value)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             ) : (
-              <p>
-                Select a station (click on map or use dropdowns) to view details and
-                forecast
-              </p>
+              <p style={{ color: "#888", textAlign: "center", margin: 0, fontSize: "12px" }}>Select a station</p>
             )}
           </div>
+        </div>
+
+        {/* RIGHT = INFO */}
+        <div style={{ width: "25%", height: "100%", padding: "10px", background: "#181818", overflowY: "auto" }}>
+          <h2 style={{ textAlign: "center", margin: "0 0 10px 0", fontSize: "16px" }}>Selected Info</h2>
+
+          {selected && selected.length > 0 ? (
+            <>
+              <p><b>Station:</b> {selected?.[0]?.station}</p>
+              <p><b>City:</b> {selected[0].city}</p>
+              <p><b>State:</b> {selected[0].state}</p>
+              <p><b>Date:</b> {selected[0].date}</p>
+
+              <hr />
+
+              <div style={{ background: "#0f3d2e", padding: "10px", borderRadius: "10px", marginBottom: "10px" }}>
+                <h3 style={{ color: "#00ffcc", margin: "0 0 8px 0", fontSize: "13px" }}>Weather</h3>
+                <p>Temperature: {formatValue(selected[0].temperature)} °C</p>
+                <p>Humidity: {formatValue(selected[0].humidity)} %</p>
+                <p>Wind Speed: {formatValue(selected[0].wind_speed)} m/s</p>
+                <p>Wind Direction: {formatValue(selected[0].wind_direction)} °</p>
+              </div>
+
+              {predError && (
+                <div style={{ background: "#4a1a1a", padding: "10px", borderRadius: "10px", marginBottom: "10px", color: "#ff6b6b" }}>
+                  <p><b>Prediction Error:</b> {predError}</p>
+                  <p style={{ fontSize: "11px" }}>Make sure the backend is running on {API_BASE}</p>
+                </div>
+              )}
+
+              {predLoading && !predError && (
+                <div style={{ padding: "15px", textAlign: "center", color: "#aaa" }}>Fetching forecast...</div>
+              )}
+
+              {prediction && !predError && !predLoading && (
+                <div style={{ background: "#1a2f4b", padding: "10px", borderRadius: "10px", marginBottom: "10px" }}>
+                  <h3 style={{ color: "#00ccff", textAlign: "center", margin: "0 0 8px 0" }}>{prediction?.pollutant} Forecast</h3>
+                  <p style={{ textAlign: "center", color: "#aaa", fontSize: "11px", margin: "0 0 8px 0" }}>Based on {prediction?.date}</p>
+
+                  <div style={{ display: "flex", justifyContent: "space-around", gap: "6px" }}>
+                    {["day1", "day2", "day3"].map((day, i) => {
+                      const val = prediction?.predictions?.[day];
+                      const health = prediction?.health_status?.[day];
+                      return (
+                        <div key={day} style={{ textAlign: "center", flex: 1 }}>
+                          <p style={{ fontSize: "11px", color: "#aaa" }}>+{i + 1} Day</p>
+                          <h4 style={{ color: health ? getHealthColor(health.level) : "white", margin: "4px 0" }}>{val ?? "-"}</h4>
+                          {health && <p style={{ fontSize: "10px", color: getHealthColor(health.level), fontWeight: "bold" }}>{health.level}</p>}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {prediction?.today_value !== undefined && (
+                    <p style={{ textAlign: "center", marginTop: "8px", color: "#aaa", fontSize: "12px" }}>
+                      Today: <b>{prediction.today_value}</b> {prediction?.pollutant === "CO" ? "mg/m³" : "µg/m³"}
+                    </p>
+                  )}
+
+                  {prediction?.delta_predictions && (
+                    <div style={{ marginTop: "8px", paddingTop: "8px", borderTop: "1px solid #333", display: "flex", justifyContent: "space-around" }}>
+                      {["day1", "day2", "day3"].map((day, i) => {
+                        const delta = prediction?.delta_predictions?.[day];
+                        if (delta === undefined) return null;
+                        const color = delta > 0 ? "#ff6b6b" : delta < 0 ? "#51cf66" : "#aaa";
+                        const sign = delta > 0 ? "+" : "";
+                        return <p key={day} style={{ color, fontSize: "11px" }}>{sign}{delta} (+{i+1}d)</p>;
+                      })}
+                    </div>
+                  )}
+
+                  {prediction?.health_status?.day1?.advice && (
+                    <div style={{ background: "rgba(0,0,0,0.2)", borderRadius: "8px", padding: "8px", marginTop: "8px" }}>
+                      <h4 style={{ fontSize: "11px", color: "#00ffcc", margin: "0 0 4px 0" }}>Health Advice</h4>
+                      <p style={{ fontSize: "11px", color: "#aaa", lineHeight: "1.4", margin: 0 }}>{prediction.health_status.day1.advice}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          ) : (
+            <p style={{ color: "#888" }}>Select a station to view details and forecast</p>
+          )}
         </div>
       </div>
     </div>

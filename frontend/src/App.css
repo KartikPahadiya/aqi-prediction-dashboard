@@ -12,9 +12,3 @@ html, body, #root {
 .map-container {
   height: 100%;
 }
-
-.chart-container {
-  min-height: 260px;
-  height: 260px;
-  position: relative;
-}
