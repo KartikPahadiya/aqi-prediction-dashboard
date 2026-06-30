@@ -1,0 +1,40 @@
+name: Deploy Backend to Hugging Face
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/deploy-hf.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+
+      - name: Push backend to HF
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          # Clone HF Space into temp dir
+          git clone https://KartikPahadiya:$HF_TOKEN@huggingface.co/spaces/KartikPahadiya/aqi-predictor hf_space || true
+          
+          # Clear existing files
+          rm -rf hf_space/*
+          
+          # Copy only backend files to HF root
+          cp -r backend/* hf_space/
+          
+          # Commit and push
+          cd hf_space
+          git config user.name "GitHub Actions"
+          git config user.email "action@github.com"
+          git add -A
+          git diff --staged --quiet || git commit -m "Deploy backend $(date +%Y-%m-%d)"
+          git push origin main --force
