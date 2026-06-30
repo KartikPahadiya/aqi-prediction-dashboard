@@ -1,0 +1,45 @@
+# Node
+frontend/node_modules/
+frontend/dist/
+*.log
+npm-debug.log*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large temp files (keep data, exclude backups)
+*.bak
+*.tmp
+backend/data/aqi_history_0.csv
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Local test scripts (not needed for deployment)
+check_delhi.py
+update.bat
+update.sh
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
