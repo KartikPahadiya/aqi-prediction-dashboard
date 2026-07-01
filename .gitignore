@@ -43,3 +43,9 @@ update.sh
 *.egg-info/
 dist/
 build/
+preprocessing/
+work/
+backend/data/aqi_history_0.csv
+check_delhi.py
+update.bat
+update.sh

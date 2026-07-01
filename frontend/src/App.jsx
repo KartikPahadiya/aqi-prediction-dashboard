@@ -2,10 +2,13 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { loadCSV } from "./utils/parseCSV";
 import MapView from "./components/MapView";
 import "./App.css";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import ChartView from "./components/ChartView";
 import TrendChart from "./components/TrendChart";
 import "leaflet/dist/leaflet.css";
-
+// import * as ReactDatePicker from "react-datepicker";
+// const DatePicker = ReactDatePicker.default;
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:7860";
 
 const POLLUTANT_ORDER = ["PM2.5", "PM10", "NO2", "NH3", "SO2", "CO", "OZONE"];
@@ -42,7 +45,8 @@ function App() {
   const [prediction, setPrediction] = useState(null);
   const [predLoading, setPredLoading] = useState(false);
   const [predError, setPredError] = useState(null);
-
+  const [chartsOpen, setChartsOpen] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
   const sortedSelected = useMemo(() => {
     if (!selected) return [];
     return POLLUTANT_ORDER.map((p) =>
@@ -199,131 +203,112 @@ function App() {
   }, [data]);
 
   return (
+    
     <div style={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden" }}>
+      <button className="hamburger-left" onClick={() => setChartsOpen(!chartsOpen)}>📊 Charts & Trend</button>
+      <button className="hamburger-right" onClick={() => setInfoOpen(!infoOpen)}>ℹ️ Info & Forecast</button>
       <div
-        style={{
-          padding: "10px",
-          background: "#222",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "10px",
-          flexShrink: 0,
-        }}
-      >
-        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
-          {POLLUTANT_ORDER.map((p) => (
-            <button
-              key={p}
-              onClick={() => {
-                setSelectedPollutant(p);
-                if (selectedStation) {
-                  fetchPrediction(selectedStation, selectedState, p);
-                }
-              }}
-              style={{
-                padding: "6px 12px",
-                borderRadius: "6px",
-                border: "none",
-                cursor: "pointer",
-                background: selectedPollutant === p ? "#00ffcc" : "#333",
-                color: selectedPollutant === p ? "black" : "white",
-              }}
-            >
-              {p}
-            </button>
-          ))}
+        className={`drawer-overlay ${(chartsOpen || infoOpen) ? "show" : ""}`}
+        onClick={() => { setChartsOpen(false); setInfoOpen(false); }}
+      />
+      {/* TOP BAR — pollutant dropdown + date picker */}
+<div className="top-bar" style={{ padding: "10px", background: "#222", display: "flex", gap: "10px", flexShrink: 0, alignItems: "center" }}>
+  <select
+    value={selectedPollutant}
+    onChange={(e) => {
+      const p = e.target.value;
+      setSelectedPollutant(p);
+      if (selectedStation) {
+        fetchPrediction(selectedStation, selectedState, p);
+      }
+    }}
+    style={{
+      flex: 1,
+      minWidth: 0,
+      padding: "8px 10px",
+      borderRadius: "6px",
+      border: "none",
+      cursor: "pointer",
+      background: "#00ffcc",
+      color: "black",
+      fontWeight: "600",
+      outline: "none",
+    }}
+  >
+    {POLLUTANT_ORDER.map((p) => (
+      <option key={p} value={p}>{p}</option>
+    ))}
+  </select>
 
-          <select
-            value={tempState}
-            onChange={(e) => {
-              setTempState(e.target.value);
-              setTempStation("");
-              setTempDate("");
-            }}
-            style={{
-              padding: "6px 12px",
-              borderRadius: "6px",
-              border: "none",
-              cursor: "pointer",
-              background: tempState ? "#00ffcc" : "#333",
-              color: tempState ? "black" : "white",
-              appearance: "none",
-              outline: "none",
-            }}
-          >
-            <option value="">All States</option>
-            {[...new Set(data.map((d) => d.state))].map((s, i) => (
-              <option key={i}>{s}</option>
-            ))}
-          </select>
+  {/* <input
+    type="date"
+    value={tempDate}
+    onChange={(e) => setTempDate(e.target.value)}
+    style={{
+      flex: 1,
+      minWidth: 0,
+      padding: "7px 10px",
+      borderRadius: "6px",
+      border: "none",
+      cursor: "pointer",
+      background: tempDate ? "#00ffcc" : "#333",
+      color: tempDate ? "black" : "white",
+      outline: "none",
+      colorScheme: "dark",
+    }}
+  /> */}
+  <DatePicker
+  selected={tempDate ? new Date(tempDate) : null}
+  onChange={(date) => setTempDate(date ? date.toLocaleDateString("en-CA") : "")}
+  includeDates={dates.map((d) => new Date(d))}
+  placeholderText="Select date"
+  dateFormat="dd-MM-yyyy"
+  className="date-picker-input"
+  wrapperClassName="date-picker-wrapper"
+  popperPlacement="bottom-start"
+  onFocus={(e) => e.target.blur()}
+  onClick={(e) => (e.target.readOnly = true)}
+/>
+</div>
 
-          <select
-            value={tempStation}
-            onChange={(e) => setTempStation(e.target.value)}
-            style={{
-              padding: "6px 12px",
-              borderRadius: "6px",
-              border: "none",
-              cursor: "pointer",
-              background: tempStation ? "#00ffcc" : "#333",
-              color: tempStation ? "black" : "white",
-              appearance: "none",
-              outline: "none",
-            }}
-          >
-            <option value="">All Stations</option>
-            {stations.map((s, i) => (
-              <option key={i}>{s}</option>
-            ))}
-          </select>
+{/* BOTTOM BAR — state, station, apply */}
+<div className="filter-bar" style={{ padding: "10px", background: "#222", display: "flex", gap: "10px", flexShrink: 0, alignItems: "center" }}>
+  <select
+    value={tempState}
+    onChange={(e) => { setTempState(e.target.value); setTempStation(""); setTempDate(""); }}
+    style={{ flex: 1, minWidth: 0, padding: "8px 10px", borderRadius: "6px", border: "none", cursor: "pointer", background: tempState ? "#00ffcc" : "#333", color: tempState ? "black" : "white", outline: "none" }}
+  >
+    <option value="">All States</option>
+    {[...new Set(data.map((d) => d.state))].map((s, i) => <option key={i}>{s}</option>)}
+  </select>
 
-          <select
-            value={tempDate}
-            onChange={(e) => setTempDate(e.target.value)}
-            style={{
-              padding: "6px 12px",
-              borderRadius: "6px",
-              border: "none",
-              cursor: "pointer",
-              background: tempDate ? "#00ffcc" : "#333",
-              color: tempDate ? "black" : "white",
-              appearance: "none",
-              outline: "none",
-            }}
-          >
-            <option value="">All Dates</option>
-            {dates.map((d, i) => (
-              <option key={i}>{d}</option>
-            ))}
-          </select>
-        </div>
+  <select
+    value={tempStation}
+    onChange={(e) => setTempStation(e.target.value)}
+    style={{ flex: 1, minWidth: 0, padding: "8px 10px", borderRadius: "6px", border: "none", cursor: "pointer", background: tempStation ? "#00ffcc" : "#333", color: tempStation ? "black" : "white", outline: "none" }}
+  >
+    <option value="">All Stations</option>
+    {stations.map((s, i) => <option key={i}>{s}</option>)}
+  </select>
 
-        <div style={{ display: "flex", gap: "10px" }}>
-          <button onClick={handleApply}>
-            {predLoading ? "Loading..." : "Apply"}
-          </button>
+  <button
+    onClick={handleApply}
+    style={{ flexShrink: 0, padding: "8px 14px", borderRadius: "6px", border: "none", cursor: "pointer", background: "#00ffcc", color: "black", fontWeight: "600" }}
+  >
+    {predLoading ? "..." : "Apply"}
+  </button>
 
-          <button
-            onClick={handleReset}
-            style={{
-              padding: "6px 14px",
-              borderRadius: "6px",
-              border: "none",
-              cursor: "pointer",
-              background: "#444",
-              color: "white",
-            }}
-          >
-            Reset
-          </button>
-        </div>
-      </div>
+  <button
+    onClick={handleReset}
+    style={{ flexShrink: 0, padding: "8px 10px", borderRadius: "6px", border: "none", cursor: "pointer", background: "#444", color: "white" }}
+  >
+    ↺
+  </button>
+</div>
 
-      <div style={{ display: "flex", flex: 1, overflow: "hidden", background: "#0a0a0a" }}>
+      <div className="main-content" style={{ display: "flex", flex: 1, overflow: "hidden", background: "#0a0a0a" }}>
         {/* LEFT = MAP */}
-        <div style={{ width: "40%", height: "100%", padding: "10px" }}>
+        <div className="map-panel" style={{ width: "40%", height: "100%", padding: "10px" }}>
           <MapView
             data={filtered}
             selectedPollutant={selectedPollutant}
@@ -335,7 +320,7 @@ function App() {
         </div>
 
         {/* MIDDLE = CHARTS */}
-        <div style={{ width: "35%", height: "100%", display: "flex", flexDirection: "column", gap: "8px", padding: "10px 0" }}>
+        <div className={`charts-panel ${chartsOpen ? "open" : ""}`} style={{ width: "35%", height: "100%", display: "flex", flexDirection: "column", gap: "8px", padding: "10px 0" }}>
           <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
             <h3 style={{ margin: "0 0 6px 0", fontSize: "13px" }}>Snapshot Chart</h3>
             <p style={{ color: "#888", fontSize: "11px", margin: "0 0 6px 0" }}>Pollutant readings for the selected station on the selected date</p>
@@ -396,7 +381,7 @@ function App() {
         </div>
 
         {/* RIGHT = INFO */}
-        <div style={{ width: "25%", height: "100%", padding: "10px", background: "#181818", overflowY: "auto" }}>
+        <div className={`info-panel ${infoOpen ? "open" : ""}`} style={{ width: "25%" , height: "100%", padding: "10px", background: "#181818", overflowY: "auto" }}>
           <h2 style={{ textAlign: "center", margin: "0 0 10px 0", fontSize: "16px" }}>Selected Info</h2>
 
           {selected && selected.length > 0 ? (

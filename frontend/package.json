@@ -13,9 +13,14 @@
     "leaflet": "^1.9.4",
     "papaparse": "^5.5.3",
     "react": "^19.2.5",
+    "react-datepicker": "^9.1.0",
     "react-dom": "^19.2.5",
     "react-leaflet": "^5.0.0",
     "recharts": "^3.8.1"
+  },
+  "overrides": {
+    "react": "$react",
+    "react-dom": "$react-dom"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
