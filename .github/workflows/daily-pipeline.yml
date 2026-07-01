@@ -24,7 +24,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          pip install pandas scikit-learn requests
+          pip install -r backend/requirements.txt
       
       - name: Fetch AQI data
         run: python data_pipeline/fetch_aqi.py
