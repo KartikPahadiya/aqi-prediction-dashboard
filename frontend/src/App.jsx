@@ -381,19 +381,20 @@ function App() {
         </div>
 
         {/* RIGHT = INFO */}
-        <div className={`info-panel ${infoOpen ? "open" : ""}`} style={{ width: "25%" , height: "100%", padding: "10px", background: "#181818", overflowY: "auto" }}>
-          <h2 style={{ textAlign: "center", margin: "0 0 10px 0", fontSize: "16px" }}>Selected Info</h2>
+        <div className={`info-panel ${infoOpen ? "open" : ""}`} style={{ width: "25%", height: "100%", padding: "10px", background: "#181818", overflowY: "hidden", display: "flex", flexDirection: "column" }}>
+          <h2 style={{ textAlign: "center", margin: "0 0 10px 0", fontSize: "16px", flexShrink: 0 }}>Selected Info</h2>
 
           {selected && selected.length > 0 ? (
-            <>
-              <p><b>Station:</b> {selected?.[0]?.station}</p>
-              <p><b>City:</b> {selected[0].city}</p>
-              <p><b>State:</b> {selected[0].state}</p>
-              <p><b>Date:</b> {selected[0].date}</p>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", gap: "8px", overflowY: "hidden" }}>
+              <div style={{ flexShrink: 0 }}>
+                <p><b>Station:</b> {selected?.[0]?.station}</p>
+                <p><b>City:</b> {selected[0].city}</p>
+                <p><b>State:</b> {selected[0].state}</p>
+                <p><b>Date:</b> {selected[0].date}</p>
+                <hr style={{ margin: "8px 0" }} />
+              </div>
 
-              <hr />
-
-              <div style={{ background: "#0f3d2e", padding: "10px", borderRadius: "10px", marginBottom: "10px" }}>
+              <div style={{ background: "#0f3d2e", padding: "8px", borderRadius: "10px", flexShrink: 0 }}>
                 <h3 style={{ color: "#00ffcc", margin: "0 0 8px 0", fontSize: "13px" }}>Weather</h3>
                 <p>Temperature: {formatValue(selected[0].temperature)} °C</p>
                 <p>Humidity: {formatValue(selected[0].humidity)} %</p>
@@ -402,19 +403,19 @@ function App() {
               </div>
 
               {predError && (
-                <div style={{ background: "#4a1a1a", padding: "10px", borderRadius: "10px", marginBottom: "10px", color: "#ff6b6b" }}>
+                <div style={{ background: "#4a1a1a", padding: "10px", borderRadius: "10px", color: "#ff6b6b", flexShrink: 0 }}>
                   <p><b>Prediction Error:</b> {predError}</p>
                   <p style={{ fontSize: "11px" }}>Make sure the backend is running on {API_BASE}</p>
                 </div>
               )}
 
               {predLoading && !predError && (
-                <div style={{ padding: "15px", textAlign: "center", color: "#aaa" }}>Fetching forecast...</div>
+                <div style={{ padding: "15px", textAlign: "center", color: "#aaa", flexShrink: 0 }}>Fetching forecast...</div>
               )}
 
               {prediction && !predError && !predLoading && (
-                <div style={{ background: "#1a2f4b", padding: "10px", borderRadius: "10px", marginBottom: "10px" }}>
-                  <h3 style={{ color: "#00ccff", textAlign: "center", margin: "0 0 8px 0" }}>{prediction?.pollutant} Forecast</h3>
+                <div style={{ background: "#1a2f4b", padding: "8px", borderRadius: "10px", flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                  <h3 style={{ color: "#00ccff", textAlign: "center", margin: "0 0 4px 0", fontSize: "12px" }}>{prediction?.pollutant} Forecast</h3>
                   <p style={{ textAlign: "center", color: "#aaa", fontSize: "11px", margin: "0 0 8px 0" }}>Based on {prediction?.date}</p>
 
                   <div style={{ display: "flex", justifyContent: "space-around", gap: "6px" }}>
@@ -424,7 +425,7 @@ function App() {
                       return (
                         <div key={day} style={{ textAlign: "center", flex: 1 }}>
                           <p style={{ fontSize: "11px", color: "#aaa" }}>+{i + 1} Day</p>
-                          <h4 style={{ color: health ? getHealthColor(health.level) : "white", margin: "4px 0" }}>{val ?? "-"}</h4>
+                          <h4 style={{ color: health ? getHealthColor(health.level) : "white", margin: "2px 0", fontSize: "15px" }}>{val ?? "-"}</h4>
                           {health && <p style={{ fontSize: "10px", color: getHealthColor(health.level), fontWeight: "bold" }}>{health.level}</p>}
                         </div>
                       );
@@ -452,12 +453,12 @@ function App() {
                   {prediction?.health_status?.day1?.advice && (
                     <div style={{ background: "rgba(0,0,0,0.2)", borderRadius: "8px", padding: "8px", marginTop: "8px" }}>
                       <h4 style={{ fontSize: "11px", color: "#00ffcc", margin: "0 0 4px 0" }}>Health Advice</h4>
-                      <p style={{ fontSize: "11px", color: "#aaa", lineHeight: "1.4", margin: 0 }}>{prediction.health_status.day1.advice}</p>
+                      <p style={{ fontSize: "11px", color: "#aaa", lineHeight: "1.2", margin: 0 }}>{prediction.health_status.day1.advice}</p>
                     </div>
                   )}
                 </div>
               )}
-            </>
+            </div>
           ) : (
             <p style={{ color: "#888" }}>Select a station to view details and forecast</p>
           )}
