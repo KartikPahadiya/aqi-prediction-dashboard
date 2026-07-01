@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import uvicorn
@@ -15,12 +15,18 @@ app = FastAPI(
     version="3.1.0"
 )
 
+@app.middleware("http")
+async def add_cors_headers(request: Request, call_next):
+    """Force CORS headers on every response — more reliable than built-in middleware."""
+    response = await call_next(request)
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "*"
+    return response
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://aqi-prediction-dashboard-1jovvt5v2-kartikpahadiya.vercel.app",
-        "http://localhost:5173",
-    ],
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
