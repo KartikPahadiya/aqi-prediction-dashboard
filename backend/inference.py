@@ -138,13 +138,36 @@ def _save_precomputed():
             weather_pivots[col] = wp
 
         aux_pivots = {}
+
         for ap in [p for p in AUX_POLLS if p != poll]:
             tmp = df_agg[df_agg['pollutant_id'] == ap]
             tmp = tmp[tmp['city'].isin(nodes)]
+
             if len(tmp) == 0:
+                # Missing auxiliary pollutant: create zero-filled data
+                aux_pivots[ap] = pd.DataFrame(
+                    0.0,
+                    index=pivot.index,
+                    columns=nodes
+                )
                 continue
-            ap_pivot = tmp.pivot_table(index='date', columns='city', values='avg_value', aggfunc='mean')
-            ap_pivot = ap_pivot.reindex(index=pivot.index, columns=nodes).interpolate(axis=0).ffill().bfill().fillna(0)
+
+            ap_pivot = tmp.pivot_table(
+                index='date',
+                columns='city',
+                values='avg_value',
+                aggfunc='mean'
+            )
+
+            ap_pivot = (
+                ap_pivot
+                .reindex(index=pivot.index, columns=nodes)
+                .interpolate(axis=0)
+                .ffill()
+                .bfill()
+                .fillna(0)
+            )
+
             aux_pivots[ap] = ap_pivot
 
         with open(MODEL_DIR / f'feature_cols_{key}.json', 'r') as f:
@@ -179,7 +202,20 @@ def _save_precomputed():
             all_rows.append(ts.iloc[-1:])
 
         latest_df = pd.concat(all_rows, ignore_index=True)
+
+        # Ensure all features expected by the trained model exist
+        for col in feature_cols:
+            if col not in latest_df.columns:
+                latest_df[col] = 0.0
+
+        # Remove rows with invalid feature values
         latest_df = latest_df.dropna(subset=feature_cols)
+
+        # Prevent RobustScaler from receiving an empty dataframe
+        if latest_df.empty:
+            print(f"  {poll}: No valid feature rows, skipping precomputation")
+            continue
+
         X_latest = scaler.transform(latest_df[feature_cols])
 
         city_lookup = {}
