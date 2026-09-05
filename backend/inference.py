@@ -117,7 +117,18 @@ def _save_precomputed():
         pivot = poll_df.pivot_table(index='date', columns='city', values='avg_value')
         pivot = pivot.sort_index().interpolate(axis=0).ffill().bfill()
 
-        meta = poll_df.groupby('city')[['latitude', 'longitude', 'state']].first().loc[nodes].reset_index()
+        # Keep only cities that actually exist in the current dataset
+        valid_nodes = [node for node in nodes if node in pivot.columns]
+
+        if not valid_nodes:
+           print(f"  {poll}: No valid cities found, skipping")
+           continue
+
+        nodes = valid_nodes
+        pivot = pivot.reindex(columns=nodes)
+
+        city_meta = poll_df.groupby('city')[['latitude', 'longitude', 'state']].first()
+        meta = city_meta.reindex(nodes).reset_index()
         meta.rename(columns={'city': 'node'}, inplace=True)
 
         weather_pivots = {}
